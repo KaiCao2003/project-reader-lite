@@ -1,6 +1,6 @@
 # project-reader-lite
 
-**English (en)** | [Chinese quick guide (zh)](README.zh.md)
+**en** | [zh](README.zh.md)
 
 `project-reader-lite` keeps a small list of paths to your experiment files and
 folders, grouped by labels. Give it the paths yourself, or let it discover them

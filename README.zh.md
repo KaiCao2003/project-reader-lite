@@ -1,6 +1,6 @@
 # project-reader-lite
 
-[English (en)](README.md) | **简体中文 (zh)**
+[en](README.md) | **zh**
 
 此页保留原有中文快速指南。安装步骤、可直接运行的完整示例、预期输出、
 API 参数说明和常见问题见 [英文完整教程](README.md)。所有示例代码使用英文。
