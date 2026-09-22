@@ -1,0 +1,3 @@
+include README.zh.md
+include examples/quickstart.py
+include examples/m19-260820-3.index.json

@@ -1,0 +1,34 @@
+{
+  "format": "project-reader-lite",
+  "version": 1,
+  "root": "/Volumes/SenzaiLab/Kai/#Recording/m19/260820/260820_3",
+  "basler": [],
+  "motive_tak": [
+    "260820.tak"
+  ],
+  "motive_csv": [
+    "260820.csv"
+  ],
+  "oe": [
+    "260820/Record Node 102/experiment1/recording1"
+  ],
+  "kilosort": [
+    "kilosort"
+  ],
+  "result": [
+    "data/result"
+  ],
+  "others": {
+    "notes": [
+      "260820.txt"
+    ],
+    "sync": [],
+    "analysis": [
+      "data/processed",
+      "data/rfmapping",
+      "data/spike_position",
+      "data/spikeinterface_analyzer",
+      "data/waveform"
+    ]
+  }
+}

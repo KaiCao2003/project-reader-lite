@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+session-index.json
+*.manual.index.json
