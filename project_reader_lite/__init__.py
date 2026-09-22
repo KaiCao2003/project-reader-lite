@@ -1,4 +1,4 @@
-"""Index experiment paths using only the Python standard library."""
+"""Index experiment files and folders by category."""
 
 from __future__ import annotations
 
@@ -19,10 +19,10 @@ _KILOSORT_NAME = re.compile(r"kilosort(?:\d+(?:\.\d+)?|[_-].+)?", re.IGNORECASE)
 
 
 class Project:
-    """A path-only index; explicit inputs are relative to ``root``.
+    """File and folder paths grouped by category.
 
-    Use ``Project.scan(root)`` for automatic discovery, or pass paths to the
-    constructor. Explicit paths can be offline and are not opened or validated.
+    Relative inputs use ``root``. The constructor records paths without
+    checking existence; ``scan()`` discovers paths in an existing directory.
     """
 
     def __init__(
@@ -101,7 +101,7 @@ class Project:
         *,
         labels: Mapping[str, str | Iterable[str]] | None = None,
     ) -> Project:
-        """Scan a folder; matching directory assets are indexed as a whole.
+        """Scan a folder, stopping descent into each recognized directory.
 
         Label rules use case-sensitive fnmatch patterns on root-relative POSIX
         paths, or any basename when the pattern has no slash. User rules take
@@ -167,7 +167,7 @@ class Project:
 
     @classmethod
     def load(cls, path: str | Path) -> Project:
-        """Load a lite JSON index without scanning or opening its data files."""
+        """Load a saved JSON index without rescanning its data directory."""
         source = Path(path).expanduser().resolve()
         data = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(data, dict) or data.get("format") != "project-reader-lite" or data.get("version") != 1:

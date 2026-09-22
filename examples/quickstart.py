@@ -1,4 +1,4 @@
-"""Index an existing recording folder and save the result to an explicit location."""
+"""Scan a recording folder, save its index, and verify the saved paths."""
 
 import argparse
 from pathlib import Path

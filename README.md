@@ -2,22 +2,17 @@
 
 **en** | [zh](README.zh.md)
 
-`project-reader-lite` keeps a small list of paths to your experiment files and
-folders, grouped by labels. Give it the paths yourself, or let it discover them
-by scanning a recording folder. Save that list to JSON and load it in another
-Python script or notebook.
+`project-reader-lite` indexes experiment files and folders by category. Scan a
+recording directory or provide paths manually, then save and load the index as
+JSON from Python scripts or notebooks.
 
 It needs **Python 3.10 or newer** and has **no third-party runtime dependencies**.
-This package is published independently at
-[KaiCao2003/project-reader-lite](https://github.com/KaiCao2003/project-reader-lite).
 
 If Python and Git are already installed, install directly from GitHub:
 
 ```bash
 python -m pip install "git+https://github.com/KaiCao2003/project-reader-lite.git"
 ```
-
-See section 2 for environment setup and installation from a downloaded folder.
 
 The package covers these seven groups:
 
@@ -29,7 +24,7 @@ The package covers these seven groups:
 | Open Ephys recordings | `project.oe` | A list of recording folder paths |
 | Kilosort outputs | `project.kilosort` | A list of output folder paths |
 | Result folders | `project.result` | A list of result folder paths |
-| Anything you label yourself | `project.others` | A dictionary of labels and path lists |
+| Custom labels | `project.others` | A dictionary of labels and path lists |
 
 Each built-in list may be empty or contain multiple entries. You do not need
 all six types to create a project.
@@ -50,9 +45,6 @@ all six types to create a project.
 12. [API reference](#12-api-reference)
 13. [Troubleshooting](#13-troubleshooting)
 14. [Development and verification](#14-development-and-verification)
-
-Start with sections 2, 3, and 4 if you are new to Python packages. If you already
-know your data paths and the package is installed, go directly to section 5.
 
 ## 1. What an index contains
 
@@ -78,14 +70,12 @@ project.add("notes", "260820.txt")        # Add an explicitly labeled path.
 print(project.motive_tak)                 # Read the indexed TAK paths.
 ```
 
-This is the actual recording used for the walkthrough below. On another machine,
-replace its root with the location of your recording. Later reference examples
-using `/data/session` illustrate path syntax and are explicitly generic.
+Replace `root` with the location of your recording. Examples using `/data/session`
+require the same substitution.
 
-The package handles recorded files and folders. It does not connect to a live
-Basler camera, start Motive, run Kilosort, load spike arrays, or synchronize
-streams. Scanning reads directory names and, when needed, a small CSV header.
-Use your normal analysis tools to open the returned paths.
+Scanning reads directory names and, when needed, a CSV header. The returned
+`Path` objects can be passed to your video, tracking, or electrophysiology tools
+to load the data.
 
 ## 2. Install the package
 
@@ -94,7 +84,6 @@ Use your normal analysis tools to open the returned paths.
 - Commands such as `python -m pip install ...` go in a **terminal**.
 - Code such as `from project_reader_lite import Project` goes in a **Python
   script**, a Python prompt, or a notebook cell.
-- Copy the commands themselves; the examples do not include a `$` or `>>>` prompt.
 
 On macOS, use Terminal. On Windows, use PowerShell. On Linux, use your usual
 terminal. The relevant part of your local repository looks like this:
@@ -111,9 +100,7 @@ project-reader-lite/
 ```
 
 **Repository root** means the `project-reader-lite` folder containing
-`pyproject.toml`, not the inner `project_reader_lite` Python package folder.
-If you received this package as a `lite` subfolder of another checkout, first
-open that `lite` folder and use it as the root for the commands below.
+`pyproject.toml`. Run installation and example commands from that folder.
 
 ### 2.2 macOS or Linux
 
@@ -175,7 +162,7 @@ Python directly:
 ```
 
 In that case, substitute `.\.venv\Scripts\python.exe` for `python` in later
-terminal commands. You do not need to change PowerShell's execution policy.
+terminal commands.
 
 ### 2.4 Confirm installation
 
@@ -209,7 +196,7 @@ The folder containing `pyproject.toml` can be installed from anywhere:
 python -m pip install /absolute/path/to/project-reader-lite
 ```
 
-If you received a wheel, install the actual file you received:
+To install a downloaded wheel:
 
 ```bash
 python -m pip install /absolute/path/to/project_reader_lite-0.1.0-py3-none-any.whl
@@ -221,10 +208,8 @@ You can also install from GitHub without retaining a source checkout:
 python -m pip install "git+https://github.com/KaiCao2003/project-reader-lite.git"
 ```
 
-That command needs Git. Installation from an extracted ZIP folder or a wheel
-does not. These commands do not assume the package is published to PyPI.
-The example script is included in the source checkout; the installed wheel does
-not install it as a command. Keep or download the source to run that script.
+The GitHub URL installation requires Git. A local folder or wheel can be installed
+without Git. To run `examples/quickstart.py`, download or clone the source.
 
 ### 2.6 Jupyter notebooks
 
@@ -245,16 +230,15 @@ a package already imported by a notebook, restart the kernel to load the new cod
 
 ## 3. Run the example on a real recording
 
-### 3.1 The recording used in this guide
+### 3.1 Recording directory
 
-The walkthrough was run against this existing recording on **2026-09-21**:
+Sample session, scanned on **2026-09-21**:
 
 ```text
 /Volumes/SenzaiLab/Kai/#Recording/m19/260820/260820_3
 ```
 
-The following is an excerpt of the actual directory layout, not a generated
-test fixture. Unrelated entries are omitted:
+Relevant files and folders:
 
 ```text
 260820_3/
@@ -281,17 +265,13 @@ test fixture. Unrelated entries are omitted:
         waveform/
 ```
 
-The example's automatic scan found no Basler video and no separately indexed
-`sync_data.json`. Those categories are shown as empty. The scanner does not look
-inside folders that have already been collected as assets, so an empty list is
-not a claim about every file hidden inside those folders.
+The scan returned empty `basler` and `sync` lists. Recognized folders are indexed
+as a whole; their contents are excluded from further discovery.
 
 ### 3.2 Run the script
 
-The included [quickstart script](examples/quickstart.py) accepts an existing
-recording directory. It scans that directory, prints the resulting paths, saves
-an index to your chosen output location, loads it, and checks that the saved
-paths match the original index.
+[quickstart.py](examples/quickstart.py) scans a recording directory, prints the
+paths, saves the index, and verifies that loading it returns the same paths.
 
 From the repository root:
 
@@ -305,8 +285,8 @@ python examples/quickstart.py "/Volumes/SenzaiLab/Kai/#Recording/m19/260820/2608
   in the repository root, outside the recording directory.
 - The script prints each label, its count, and each root-relative path.
 - It adds custom rules for notes (`*.txt`, `*.md`) and `sync_data.json`.
-- It also labels five generated output folders as `analysis`, collecting each
-  as one asset. These are the real folders listed in section 3.1.
+- It groups the five analysis output folders under `analysis`, collecting each
+  as one asset.
 - Empty custom categories remain visible with a count of zero.
 - Its final line should be `Reloaded index matches: True`.
 
@@ -318,8 +298,7 @@ meaning in shell commands when used outside quotes.
 
 ### 3.3 Actual output
 
-This output was captured from the real recording. `<checkout>` below stands for
-the absolute path of your local repository; the remaining paths are real:
+`<checkout>` stands for the absolute path of your local repository:
 
 ```text
 Root: /Volumes/SenzaiLab/Kai/#Recording/m19/260820/260820_3
@@ -347,14 +326,14 @@ Saved: <checkout>/session-index.json
 Reloaded index matches: True
 ```
 
-The [reference index](examples/m19-260820-3.index.json) is included with the source.
-It contains paths only. Its root is stored as an absolute mount path so moving
-the checkout does not change which recording the reference describes. The command
-above writes your own index to `session-index.json`. It does not copy recordings.
+The saved paths are available in
+[m19-260820-3.index.json](examples/m19-260820-3.index.json). Its absolute root points
+to the recording's mount location. Running the command creates a new index at
+`session-index.json`.
 
-`kilosort: 1` refers to the outer `kilosort` directory. To select its ProbeA
-output specifically, see section 6.3. `analysis: 5` demonstrates the seventh
-group: folders grouped under a label chosen by the user.
+`kilosort: 1` refers to the outer `kilosort` directory. The ProbeA output is at
+`kilosort/ProbeA/kilosort_3`. `analysis: 5` counts the five folders assigned to
+the custom `analysis` label.
 
 ## 4. Write your first indexing script
 
@@ -443,12 +422,10 @@ Use the constructor when you know the paths, your filenames do not match the
 automatic rules, or the data drive is disconnected.
 
 **`Project(root)` creates an empty index. `Project.scan(root)` scans a folder.**
-The constructor never starts an automatic scan.
 
-### 5.1 Enter the real sample's paths
+### 5.1 Manual input for the sample session
 
-This creates the same index as the real scan in section 3. It uses actual paths
-from that recording; the Basler list remains empty:
+Pass the sample session's paths directly:
 
 ```python
 from pathlib import Path
@@ -480,12 +457,8 @@ saved = project.save(Path.cwd() / "m19-260820-3.manual.index.json")
 print(saved)
 ```
 
-`"260820.tak"` is relative to `root`, so it refers to the TAK in that real
-recording folder. Custom labels can contain file paths or directory paths.
-All seven input groups are represented, including an empty optional category.
-
-The shape examples below use generic filenames to demonstrate valid arguments;
-they are not additional files claimed to exist in this recording.
+`"260820.tak"` is relative to `root`. Custom labels can contain file or directory
+paths. The Basler list is empty for this session.
 
 ### 5.2 Accepted inputs
 
@@ -620,11 +593,10 @@ if project.kilosort:
     print(str(spike_times_file))
 ```
 
-For the automatic index of the real sample, this gives the verified path
-`kilosort/ProbeA/kilosort_3/spike_times.npy`. If you manually indexed the probe's
-`kilosort_3` directory instead, use `sorting_folder / "spike_times.npy"`.
-Always join paths relative to the folder you actually indexed. A folder name
-alone does not guarantee that every possible output file exists inside it.
+For the sample session, the resulting path is
+`kilosort/ProbeA/kilosort_3/spike_times.npy`. If you indexed the `kilosort_3`
+directory directly, use `sorting_folder / "spike_times.npy"`. Check
+`spike_times_file.is_file()` before opening it.
 
 ### 6.4 Returned lists and dictionaries are copies
 
@@ -772,7 +744,7 @@ the files for you.
 Scanning stops inside recognized OE, Kilosort, result, and custom folders. This
 keeps large recording and output trees inexpensive to index.
 
-The real recording has this layout:
+In the sample session:
 
 ```text
 260820_3/
@@ -780,8 +752,8 @@ The real recording has this layout:
         ProbeA/kilosort_3/
 ```
 
-The scanner records one Kilosort path: `260820_3/kilosort`. It does not separately
-add the nested probe. To index ProbeA's output directly, provide its real path:
+The scanner records `260820_3/kilosort` as one asset. To index ProbeA's output
+directly, provide its path:
 
 ```python
 project = Project(
@@ -793,7 +765,7 @@ project = Project(
 An outer folder named `oe` likewise becomes one asset even if it contains
 multiple recordings. Under an ordinary parent such as `Record Node 102`, the
 scanner descends until it reaches each recording folder with its own descriptor.
-For a session with more probes, pass a list containing each probe's actual output
+For a session with more probes, pass a list containing each probe's output
 folder. This sample contains ProbeA only.
 
 ### 8.3 What the scanner skips
@@ -825,7 +797,6 @@ raises an exception instead of returning a silently incomplete index.
 Format background: [Motive CSV](https://docs.optitrack.com/motive/data-export/data-export-csv),
 [Open Ephys binary](https://open-ephys.github.io/gui-docs/User-Manual/Data-formats/Binary-format.html),
 and [Kilosort outputs](https://kilosort.readthedocs.io/en/latest/export_files.html).
-The table above describes this package's actual detection behavior.
 
 ## 9. Save and load an index
 
@@ -890,8 +861,7 @@ project.save(index_file)
 
 ### 9.4 The JSON format
 
-Here is the included real reference index, with path lists displayed on one line
-for readability:
+Index for the sample session:
 
 ```json
 {
@@ -918,15 +888,13 @@ for readability:
 }
 ```
 
-This checked-in reference uses an absolute root to keep the example independent
-of the checkout location. `load()` accepts both absolute and relative roots.
-An ordinary `save()` instead computes a relative root where possible. Saving to
-`<session>/meta/index.json` produces `"root": ".."`; saving outside the session
-can produce several `../` components. Their number depends on the output location.
-You do not need to construct these values yourself.
+`load()` accepts absolute and relative roots. This index uses an absolute mount
+path. `save()` computes a relative root where possible: saving to
+`<session>/meta/index.json` produces `"root": ".."`. A destination outside the
+session can produce several `../` components, depending on its location.
 
 Custom labels live under `others` on disk. In memory, `project.index` presents
-all labels in one dictionary for easy iteration.
+all labels in one dictionary.
 
 This is the lite JSON format, separate from the full Project Reader `.proj`
 format. Changing a file extension does not convert formats. Use this package's
@@ -1028,9 +996,9 @@ This checks existence only, not recording completeness or file contents.
 
 ### 11.3 Remove or relabel an entry
 
-The small API has no in-place `remove()` or `relabel()` method. You can copy the
-lists and construct a replacement project. This moves `preview.avi` out of the
-Basler list while preserving the other entries:
+To remove or relabel a path, edit copies of the lists and construct a replacement
+project. This moves `preview.avi` out of the Basler list while preserving the
+other entries:
 
 ```python
 from project_reader_lite import CATEGORIES, Project
@@ -1113,8 +1081,7 @@ in section 2.6. In your editor, select the environment containing the package.
 
 Run `python -m pip install .` from the folder containing `pyproject.toml`, not
 from the inner `project_reader_lite` folder. From elsewhere, pass the absolute
-path to the repository root. If this package was supplied as a `lite` subfolder,
-install that subfolder rather than its parent project.
+path to the folder containing `pyproject.toml`.
 
 ### Scanning raises `FileNotFoundError` or `NotADirectoryError`
 
@@ -1219,14 +1186,12 @@ when moving an experiment. Section 10 explains how relative paths behave.
 
 ### Can filenames and user labels contain Unicode?
 
-Yes. Labels and paths support Unicode; JSON is written as UTF-8. Source code,
-comments, errors, and code examples are written in English.
+Yes. Labels and paths support Unicode, and JSON is written as UTF-8.
 
 ### Is there a GUI or installed CLI command?
 
-The lite package exposes this Python API. Use a script or notebook. The
-`examples/quickstart.py` script is a source example, not an installed entry point.
-The full Project Reader application's GUI and CLI are separate.
+Use the Python API from a script or notebook, or run `examples/quickstart.py`
+from the source checkout. The package has no GUI or installed CLI command.
 
 ## 14. Development and verification
 
@@ -1258,8 +1223,5 @@ Build a wheel:
 python -m pip wheel --no-deps . --wheel-dir ./dist
 ```
 
-The wheel contains the lightweight package and metadata. It requires no GUI,
-full Project Reader runtime, or third-party runtime dependencies.
-
-Documentation uses English by default. The pre-existing Chinese guide is
-preserved at [README.zh.md](README.zh.md), with language links on both pages.
+The wheel is written to `dist/` and can be installed with `python -m pip install`
+followed by its path.

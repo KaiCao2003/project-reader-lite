@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "project-reader-lite"
 version = "0.1.0"
-description = "Small path index for Basler, Motive, Open Ephys, Kilosort, results, and custom labels."
+description = "Index paths for Basler, Motive, Open Ephys, Kilosort, results, and custom labels."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
